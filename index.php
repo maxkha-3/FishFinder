@@ -5,15 +5,29 @@
 	
 	include 'func_lib.php';
 	
+	//When user logs in.
 	if(isset($_POST['googleLogin'])) {
+		//Check if Google ID is assigned
 		if(isset($_POST['userID'])) {
+			//Clear old session variables and create new ones
+			session_unset();
 			$_SESSION['user'] = $_POST['userID'];
 			$_SESSION['realName'] = $_POST['userName'];
 			$_SESSION['picUrl'] = $_POST['userPic'];
 			$_SESSION['email'] = $_POST['userEmail'];
+			//Geographical center of Sweden (map centering)
+			$_SESSION['latCenter'] = 62.388;
+			$_SESSION['lngCenter'] = 16.325;
+			
+			//If Google user signs in for the first time, then add to the database
+			if(!userExistent($_POST['userID'])) {
+				addNewUser($_POST['userID'], $_POST['userName'], $_POST['userEmail']);
+			}
+			
 		}
 	}
 	
+	//If user is already set, then go to location page without logging in
 	if((isset($_SESSION['user'])) && ($_SESSION['user'] != "")) {
 		header('Location: mylocations.php');
 		exit();
@@ -21,6 +35,7 @@
 	
 	
 ?>
+<!--Google login API-->
 <script>signOut()</script>
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <meta name="google-signin-client_id" content="210455189570-1o93jli9t2hv7cnm3dgqcit3tvgftvnk.apps.googleusercontent.com">
@@ -28,18 +43,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset=utf-8>
 	<title>Fish Finder</title>
 	<link rel=stylesheet href=style.css>
 	<link rel="icon" type="image/png" href="fish_icon.ico?v=2">
 </head>
 <body class="home">
 	
+	<!--Logo-->
 	<div class="logo" align="center">
 	<img src="logo.png" class="log_img" alt="Logo">
 	</div>
 	
 	
-	
+	<!--Login div-->
 	<div class="login" align="center">
 		<h3>Welcome to Fish Finder!</h3>
 		<p>A web page for sharing the best fishing locations in Sweden.
@@ -47,6 +64,7 @@
 		<p>Join us for FREE now! <p> 
 		
 		<div class="g-signin2" data-onsuccess="onSignIn" align="center"></div>	
+		
 		<form id="sampleForm" name="sampleForm" method="post">
 			<input name="userID" type="hidden" id="userID" value="">
 			<input name="userName" type="hidden" id="userName" value="">
@@ -68,7 +86,9 @@
 		ga('create', 'UA-86978734-1', 'auto');
 		ga('send', 'pageview');
 	</script>
+	<!--Google login/logout-->
 	<script>
+		//On sign in, retrieve user information
 		function onSignIn(googleUser) {
 			var profile = googleUser.getBasicProfile();
 			console.log('ID: ' + profile.getId());
@@ -83,6 +103,7 @@
 				document.sampleForm.googleLogin.disabled = false;
 			}
 		}
+		//On sign out, clear the information about the user
 		function signOut() {
 			var auth2 = gapi.auth2.getAuthInstance();
 			document.sampleForm.userID.value = "";
@@ -95,9 +116,6 @@
 			document.sampleForm.googleLogin.disabled = true;
 		}
 	</script>
-	
-
-	<script>
 
 </body>
 </html>
