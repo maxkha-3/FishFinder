@@ -24,7 +24,9 @@
 		$cnt = $arr['county_id'];
 		$_SESSION['sql'] = "SELECT * FROM location";
 		$_SESSION['region'] = 0;
-		$_SESSION['fGrade'] = 0;
+		$_SESSION['fGrade'] = 1;
+		$_SESSION['latCenter'] = 62.388;
+		$_SESSION['lngCenter'] = 16.325;
 	}
 	
 	//If user decides to log out
@@ -39,6 +41,7 @@
 		$county = $_POST['change_county'];
 		$array = getCenterMap($county);
 		setUserInfo($_SESSION['user'], $_POST['change_address'], $_POST['change_city'], $_POST['change_bio'], $county);
+		header('Location: mylocations.php');
 	}
 	
 	//Filters the locations
@@ -73,17 +76,17 @@
 		
 		//Exit if file format is incorrect
 		if(!in_array($ext, $allowed) ) {
-			echo 'File format error';
-			exit();
+			echo "<script type='text/javascript'>alert('Format error! Allowed formats are: .gif, .png, .jpg and .jpeg');</script>";
 		}
-		
-		//Add to DB via the API
-		addLocation(floatval($_POST['lat']), floatval($_POST['lng']), $_POST['trip_grade'], $_POST['new_county'], $_POST['name'], $_POST['new_desc'], $image, $image_name);
-		
-		//Add first review
-		$location_id = getLocationID(getLocationLatLng(floatval($_POST['lat']), floatval($_POST['lng'])));
-		addFishingTrip($userID, $location_id, $_POST['trip_comment'], $_POST['trip_weight'], $_POST['trip_weather'], $_POST['trip_grade']);
-		updateGrade($location_id);
+		else {
+			//Add to DB via the API
+			addLocation(floatval($_POST['lat']), floatval($_POST['lng']), $_POST['trip_grade'], $_POST['new_county'], $_POST['name'], $_POST['new_desc'], $image, $image_name);
+			
+			//Add first review
+			$location_id = getLocationID(getLocationLatLng(floatval($_POST['lat']), floatval($_POST['lng'])));
+			addFishingTrip($userID, $location_id, $_POST['trip_comment'], $_POST['trip_weight'], $_POST['trip_weather'], $_POST['trip_grade']);
+			updateGrade($location_id);
+		}
 	}
 	
 	//Go to specified location
@@ -160,7 +163,7 @@
 			<option value="" disabled>Filter the grades</option>
 			<?php
 
-				$text = array('Useless (0+)', 'Very Bad or higher (1+)', 'Bad or higher (2+)', 'Good or higher (3+)', 'Very Good or higher (4+)', 'Excellent (5)');
+				$text = array('All', 'All', 'Bad or higher (2+)', 'Good or higher (3+)', 'Very Good or higher (4+)', 'Excellent (5)');
 				$grade = $_SESSION['fGrade'];
 				for ($i = 5; $i > 0; $i--) {
 					if ($grade == $i) {
@@ -178,6 +181,13 @@
 	
 	<!--Map-->
     <div align="center" id="map"></div>
+	
+	<div class="help_click">
+		<h4 align="center">Map tips</h4>
+		<label><b>To add a new location, right click on a place on the map!</b></label><p>
+		<label><b>Hover over a marker to see the detailed information about the fishing location.</b></label><p>
+		<label><b>Click on a marker to visit the fishing location.</b></label>
+	</div>
 	
 	<!--User info pop-up-->
 	<div id="id01" class="modal">
@@ -256,7 +266,7 @@
 			</select>
 			<label><b>Description</b></label><p>
 			<textarea placeholder="Fishing Location Description" required name="new_desc" rows="4" cols="40"></textarea>
-			<label><b>Image</label><p>
+			<label><b>Image (Allowed formats are: .gif, .png, .jpg and .jpeg)</label><p>
 			<input type="file" name="loc_image" id="loc_image">
 			<hr>
 			<h3 align="center">Review</h3>

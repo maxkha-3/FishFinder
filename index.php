@@ -33,10 +33,13 @@
 		exit();
 	}
 	
+	if(isset($_POST['doc'])) {
+		header('Location: documentation.pdf');
+	}
+	
 	
 ?>
 <!--Google login API-->
-<script>signOut()</script>
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 <meta name="google-signin-client_id" content="210455189570-1o93jli9t2hv7cnm3dgqcit3tvgftvnk.apps.googleusercontent.com">
 
@@ -60,7 +63,7 @@
 	<div class="login" align="center">
 		<h3>Welcome to Fish Finder!</h3>
 		<p>A web page for sharing the best fishing locations in Sweden.
-		<p>We welcome all the fishng enthusiasts!
+		<p>We welcome all the fishing enthusiasts!
 		<p>Join us for FREE now! <p> 
 		
 		<div class="g-signin2" data-onsuccess="onSignIn" align="center"></div>	
@@ -71,6 +74,7 @@
 			<input name="userPic" type="hidden" id="userPic" value="">
 			<input name="userEmail" type="hidden" id="userEmail" value="">
 			<button type="submit" name="googleLogin" disabled>Continue with google</button>
+			<button type="submit" name="doc">Documentation</button>
 		</form>
 		<a href="#" onclick="signOut();">Sign out</a>
 	</div>
